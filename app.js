@@ -37,7 +37,9 @@ async function agregarProducto() {
     });
     if (res.ok) {
       alert("¡Guardado con éxito en MongoDB Atlas!");
-      document.getElementById("formProducto").reset();
+      document.getElementById("nombre").value = "";
+      document.getElementById("precio").value = "";
+      document.getElementById("existencia").value = "";
       obtenerProductos();
     }
   } catch (err) {
@@ -51,22 +53,30 @@ async function editarProducto(id, nombre, precio, existencia) {
   const nuevoPrecio = prompt("Precio:", precio);
   const nuevaExistencia = prompt("Existencia:", existencia);
 
-  await fetch(`${API_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      nombre: nuevoNombre,
-      precio: Number(nuevoPrecio),
-      existencia: Number(nuevaExistencia)
-    })
-  });
-  obtenerProductos();
+  try {
+    await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre: nuevoNombre,
+        precio: Number(nuevoPrecio),
+        existencia: Number(nuevaExistencia)
+      })
+    });
+    obtenerProductos();
+  } catch (err) {
+    console.error("Error al editar:", err);
+  }
 }
 
 async function eliminarProducto(id) {
   if (!confirm("¿Eliminar este producto?")) return;
-  await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-  obtenerProductos();
+  try {
+    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    obtenerProductos();
+  } catch (err) {
+    console.error("Error al eliminar:", err);
+  }
 }
 
 obtenerProductos();
