@@ -12,6 +12,10 @@ async function obtenerProductos() {
           <td>${prod.nombre}</td>
           <td>$${prod.precio}</td>
           <td>${prod.existencia} pzas</td>
+          <td>
+            <button onclick="editarProducto('${prod._id}', '${prod.nombre}', ${prod.precio}, ${prod.existencia})" style="background:#f59e0b;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;margin-right:5px;">✏️ Editar</button>
+            <button onclick="eliminarProducto('${prod._id}')" style="background:#ef4444;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">🗑️ Eliminar</button>
+          </td>
         </tr>`;
     });
   } catch (err) {
@@ -33,14 +37,36 @@ async function agregarProducto() {
     });
     if (res.ok) {
       alert("¡Guardado con éxito en MongoDB Atlas!");
-      document.getElementById("nombre").value = "";
-      document.getElementById("precio").value = "";
-      document.getElementById("existencia").value = "";
+      document.getElementById("formProducto").reset();
       obtenerProductos();
     }
   } catch (err) {
     console.error("Error al enviar datos:", err);
   }
+}
+
+async function editarProducto(id, nombre, precio, existencia) {
+  const nuevoNombre = prompt("Nombre del producto:", nombre);
+  if (!nuevoNombre) return;
+  const nuevoPrecio = prompt("Precio:", precio);
+  const nuevaExistencia = prompt("Existencia:", existencia);
+
+  await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nombre: nuevoNombre,
+      precio: Number(nuevoPrecio),
+      existencia: Number(nuevaExistencia)
+    })
+  });
+  obtenerProductos();
+}
+
+async function eliminarProducto(id) {
+  if (!confirm("¿Eliminar este producto?")) return;
+  await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  obtenerProductos();
 }
 
 obtenerProductos();
